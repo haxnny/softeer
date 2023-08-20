@@ -1,10 +1,15 @@
 package main;
 
 import java.io.*;
-import java.util.PriorityQueue;
-import java.util.StringTokenizer;
+import java.util.*;
 
 public class Solution {
+
+    public static int N, M, K;
+    public static int[] weights, n_weights;
+
+    public static int total_weight = 0;
+    public static int min_weight = Integer.MAX_VALUE;
 
     public static void main(String[] agrs) throws IOException {
         System.setIn(new FileInputStream("src/main/input.txt"));
@@ -13,35 +18,22 @@ public class Solution {
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 
         StringTokenizer st = new StringTokenizer(br.readLine());
-        int W = Integer.parseInt(st.nextToken());
-        int N = Integer.parseInt(st.nextToken());
+        N = Integer.parseInt(st.nextToken());   // 레일의 개수
+        M = Integer.parseInt(st.nextToken());   // 택배 바구니 무게
+        K = Integer.parseInt(st.nextToken());   // 일의 시행 횟수
 
-        PriorityQueue<Gold> pq = new PriorityQueue<>();
+        weights = new int[N];
+        n_weights = new int[N];
+
+        st = new StringTokenizer(br.readLine());
         for(int i = 0; i < N; i ++) {
-            st = new StringTokenizer(br.readLine());
-
-            int M = Integer.parseInt(st.nextToken());
-            int P = Integer.parseInt(st.nextToken());
-
-            // W 무게 가방에 M의 무게를 담아
-            pq.add(new Gold(M, P));
+            weights[i] = Integer.parseInt(st.nextToken());
         }
 
-        int curr = 0, price = 0;
-        while(curr < W) {
-            Gold g = pq.poll();
+        n_weights = weights.clone();
+        perm(n_weights, 0);
 
-            int posibleWeight = W - curr;
-            if(posibleWeight < g.m) {
-                price += posibleWeight * g.p;
-                curr += posibleWeight;
-            } else {
-                price += g.m * g.p;
-                curr += g.m;
-            }
-        }
-
-        System.out.println(price);
+        System.out.println(min_weight);
 
 
         bw.flush();
@@ -50,21 +42,37 @@ public class Solution {
 
     }
 
-    public static class Gold implements Comparable<Gold> {
-        int m;
-        int p;
+    public static void perm(int[] arr, int index) {
+        if(index == N) return;
 
-        public Gold (int m, int p) {
-            this.m = m;
-            this.p = p;
+        simulation(n_weights[0], 1, 1);
+        min_weight = Math.min(min_weight, total_weight);
+        total_weight = 0;
+
+        for(int i = index; i < N; i ++) {
+            swap(arr, index, i);
+            perm(arr, index + 1);
+            swap(arr, index, i);
         }
-
-        @Override
-        public int compareTo(Gold o) {
-            return o.p - this.p; // 내림차순
-        }
-
     }
 
+    public static void swap(int[] arr, int index, int i) {
+        int temp = arr[index];
+        arr[index] = arr[i];
+        arr[i] = temp;
+    }
+
+    // weights[0], 1, 1
+    public static void simulation(int sum, int index, int try_count) {
+        if(try_count > K) return;
+
+        int nextIndex = (index + 1 == N ? 0 : index + 1);
+        if(sum + n_weights[index] <= M) {
+            simulation(sum + n_weights[index], nextIndex, try_count);
+        } else {
+            total_weight += sum;
+            simulation(n_weights[index], nextIndex, try_count+1);
+        }
+    }
 
 }
