@@ -1,4 +1,4 @@
-package main;
+package main.retry;
 
 import java.io.*;
 import java.util.Arrays;
@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 
-public class Solution {
+public class Solution1309 {
 
     public static void main(String[] agrs) throws IOException {
         System.setIn(new FileInputStream("src/main/input.txt"));
